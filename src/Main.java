@@ -1,33 +1,30 @@
 import java.io.File; 
-import java.io.FileNotFoundException; 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner; 
 
 public class Main {
 
-	public static void main(String[] args) {	
+	public static void main(String[] args) throws IOException{	
 		String userData = "userData.txt";
 		String availableItems = "availableItems.txt";
-		int temp;
+		int temp;		//Holds the transaction (01-06)
 		
 		FileHandler fileHandler = new FileHandler(userData, availableItems);
 		LogWriter logWriter = new LogWriter();
-		String error = ""; 
 		try {
 			File file = new File("dailyTransactions.txt");
 			Scanner scanner = new Scanner(file);
 			String[] line;
-			String transaction;
 			while (scanner.hasNextLine()) {
-				transaction = scanner.nextLine();
-				line = transaction.split("\\s+");
-				
+				line = scanner.nextLine().split("\\s+");
+				//System.out.println(line[0] + line[1]);
 				
 				temp = Integer.parseInt(line[0]);
-				System.out.println(temp);
 				
 				switch(temp) {
 				case 1:
-					fileHandler.create(line[1]);
+					fileHandler.create(line[1], line[2]);
 					break;
 				case 2:
 					fileHandler.delete(line[1]);
@@ -57,7 +54,8 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		logWriter.write(error);
+		//Log all errors when daily file done being read
+		logWriter.write(fileHandler.getErrors());
 
 	}
 

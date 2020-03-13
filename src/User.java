@@ -8,6 +8,12 @@ public class User {
 		
 	}
 
+	User(String username, String type, float credit){
+		this.username = username;
+		this.type = type;
+		this.credit = credit;
+	}
+	
 	//Get the user object's username
 	String getUsername() {
 		return this.username;

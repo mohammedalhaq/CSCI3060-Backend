@@ -1,0 +1,5 @@
+admin AA 100
+userFS FS 0
+userBS BS 0
+user01 FS 100
+userSS SS 0
