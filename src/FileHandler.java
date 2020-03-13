@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 
-public class FileHandler {
+public class FileHandler { 
 	//Old Files
 	private String userData;
 	private String availableItems;
@@ -14,9 +14,6 @@ public class FileHandler {
 	private String newAvailableItems;		
 	
 	private String errors;					//Variable to hold all the error messages to later write
-	private boolean createdUser;			//Variable to track whether the new userfile should be read or not
-	private boolean createdItems;			//Variable to track whether the new itemsfile should be read or not
-	
 	private User user;
 	
 	FileHandler(String userData, String availableItems){ 
@@ -24,12 +21,17 @@ public class FileHandler {
 		this.availableItems = availableItems;
 		this.newUserData = "newUserData.txt";
 		this.newAvailableItems = "newAvailableItems.txt";
-		this.createdUser = false;
-		this.createdItems = false;
+		this.errors = "";
 	}
 	
 	private User getUser(String username) throws IOException{
-		File file = new File(userData);
+		File file;
+		if (new File(this.newUserData).exists()) {
+			file = new File(this.newUserData);
+		} else {
+			file = new File(this.userData);			
+		}
+		
 		Scanner scanner = new Scanner(file);
 		String[] line;
 		while(scanner.hasNextLine()) {
@@ -41,31 +43,36 @@ public class FileHandler {
 		}
 			
 		scanner.close();
-		return null;
+		return new User();
 	}
 	
 	//Function to update the new UserData file
-	void create(String username, String type) throws IOException {
+	void create(String username, String type) throws IOException {	
 		//check is user exists
-		if (getUser(username) != null) {
+		if (getUser(username).getUsername() != null) {
 			this.errors += "ERROR: Username " + username + " already in use.\n";
+		} else {
+			FileOutputStream outFile; 
+			//check if file exists to decide whether to append new user or create new file
+			if (!new File(this.newUserData).exists()) {	
+				outFile = new FileOutputStream(this.newUserData);
+				File file = new File(userData);
+				Scanner scanner = new Scanner(file);
+		
+				while (scanner.hasNextLine()) {
+					byte[] oldUsers = (scanner.nextLine() + "\n").getBytes();
+					outFile.write(oldUsers);
+				}
+				scanner.close();
+
+			} else {
+				outFile = new FileOutputStream(this.newUserData, true);
+			}
+		
+			byte[] newUser = (username + " " +  type + " 00.00" + "\n").getBytes();
+			outFile.write(newUser);
+			outFile.close();
 		}
-		
-		FileOutputStream outFile = new FileOutputStream(this.newUserData, true);
-			
-		File file = new File(userData);
-		Scanner scanner = new Scanner(file);
-		
-		while (scanner.hasNextLine()) {
-			byte[] oldUsers = (scanner.nextLine() + "\n").getBytes();
-			outFile.write(oldUsers);
-		}
-		
-		byte[] newUser = (username + " " +  type + " 00.00" + "\n").getBytes();
-		outFile.write(newUser);
-		outFile.close();
-		this.createdUser= true;
-		
 	}
 	
 	//Function to delete a user
@@ -73,7 +80,7 @@ public class FileHandler {
 		FileOutputStream userFile = new FileOutputStream("tempusers.txt"); //writes a temp file if a new user data exists
 		File file;
 		
-		if (this.createdUser) {
+		if (new File(this.newUserData).exists()) {
 			file = new File(this.newUserData);
 			
 		} else {
@@ -84,7 +91,6 @@ public class FileHandler {
 		String line;
 		while (userScanner.hasNextLine()) {
 			line = userScanner.nextLine();
-			System.out.println(line);
 			String[] temp = line.split("\\s+");
 			
 			if (!temp[0].equals(username)) {
@@ -94,13 +100,13 @@ public class FileHandler {
 		}
 		userFile.close();
 		userScanner.close();
-		file.delete();
+		new File(this.newUserData).delete();
 		new File("tempusers.txt").renameTo(new File(this.newUserData));
 		
 		
 		
 		FileOutputStream itemsFile = new FileOutputStream(this.newAvailableItems);
-		if (this.createdItems) {
+		if (new File(this.availableItems).exists()) {
 			file = new File(this.newAvailableItems);
 		} else {
 			file = new File(this.availableItems);
@@ -120,8 +126,29 @@ public class FileHandler {
 		itemsScanner.close();
 	}
 	
-	void advertise(String itemName, String username, int duration, float minBid) {
-		
+	//Creates a new listing for an item in newItems file
+	void advertise(String itemName, String username, int duration, float minBid) throws IOException {
+		FileOutputStream outFile;
+		//check if file exists to decide whether to append new user or create new file
+		if (!new File(this.newAvailableItems).exists()) {	
+			outFile = new FileOutputStream(this.newAvailableItems);
+			File file = new File(this.availableItems);
+			Scanner scanner = new Scanner(file);
+			while (scanner.hasNextLine()) {
+				String line = scanner.nextLine();
+				System.out.println(line);
+				byte[] oldItems = (line + "\n").getBytes();
+				
+				outFile.write(oldItems);
+			}
+			scanner.close();
+		} else {
+			outFile = new FileOutputStream(this.newAvailableItems, true);
+		}
+	
+		byte[] newItem = (itemName + " " + username + " " +  username + " " + duration + " " + minBid + "\n").getBytes();
+		outFile.write(newItem);
+		outFile.close();
 	}
 	
 	void bid(String itemName, String seller, String currentUser, float amount) {
