@@ -13,6 +13,7 @@ public class Main {
 		FileHandler fileHandler = new FileHandler(userData, availableItems);
 		LogWriter logWriter = new LogWriter();
 		try {
+			fileHandler.endDay();
 			File file = new File("dailyTransactions.txt");
 			Scanner scanner = new Scanner(file);
 			String[] line;
