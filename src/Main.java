@@ -11,7 +11,7 @@ public class Main {
 		int temp;		//Holds the transaction (01-06)
 		
 		FileHandler fileHandler = new FileHandler(userData, availableItems);
-		LogWriter logWriter = new LogWriter();
+		LogWriter logWriter = new LogWriter("ErrorLog.txt");
 		try {
 			fileHandler.endDay();
 			File file = new File("dailyTransactions.txt");

@@ -6,8 +6,8 @@ import java.util.Scanner;
 public class LogWriter {
 	String errorFile;
 	
-	LogWriter(){ 
-		this.errorFile = "ErrorLog.txt";
+	LogWriter(String filename){ 
+		this.errorFile = filename;
 	}
 	
 	void write(String error) throws IOException {
