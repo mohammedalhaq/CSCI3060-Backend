@@ -83,6 +83,7 @@ public class FileHandler {
 	
 	//Function to delete a user
 	void delete(String username) throws IOException {
+		boolean found = false;
 		FileOutputStream userFile = new FileOutputStream("tempusers.txt"); //writes a temp file if a new user data exists
 		File file;
 		
@@ -126,6 +127,8 @@ public class FileHandler {
 			if (!temp[1].equals(username)) {
 				byte[] oldUsers = (line + "\n").getBytes();
 				itemsFile.write(oldUsers);
+			} else {
+				found = true;
 			}
 		}
 		itemsFile.close();
@@ -135,6 +138,9 @@ public class FileHandler {
 		//replaces old new items file with temp
 		new File(this.newAvailableItems).delete();
 		new File("tempItems.txt").renameTo(new File(this.newAvailableItems));
+	
+	
+		if (!found) this.errors += "ERROR: User does not exist\n";
 	}
 	
 	//Creates a new listing for an item in newItems file
@@ -145,19 +151,19 @@ public class FileHandler {
 			this.errors += "ERROR: Max duration for an item is 100 days\n";
 		} else if (itemName.length() > 25){
 			this.errors += "ERROR: Max length for the item name is 25 characters\n";
-		} else {
-		FileOutputStream outFile = new FileOutputStream(this.newAvailableItems);
-		File file = new File(this.availableItems);
-		Scanner scanner = new Scanner(file);
-		while (scanner.hasNextLine()) {
-			byte[] oldItems = (scanner.nextLine() + "\n").getBytes();	
-			outFile.write(oldItems);
-		}
-		scanner.close();
+		} else {		
+			FileOutputStream outFile = new FileOutputStream(this.newAvailableItems);
+			File file = new File(this.availableItems);
+			Scanner scanner = new Scanner(file);
+			while (scanner.hasNextLine()) {
+				byte[] oldItems = (scanner.nextLine() + "\n").getBytes();	
+				outFile.write(oldItems);
+			}
+			scanner.close();
 	
-		byte[] newItem = (itemName + " " + username + " " +  username + " " + duration + " " + minBid + "\n").getBytes();
-		outFile.write(newItem);
-		outFile.close();
+			byte[] newItem = (itemName + " " + username + " " +  username + " " + duration + " " + minBid + "\n").getBytes();
+			outFile.write(newItem);
+			outFile.close();
 		}
 	}
 	
@@ -165,6 +171,10 @@ public class FileHandler {
 		FileOutputStream outFile = new FileOutputStream("tempItems.txt");
 		File file = new File(this.newAvailableItems);
 
+		//variables to refunds old top bidder
+		String oldBidder = "";
+		float oldBid = 0f;
+		
 		Scanner scanner = new Scanner(file);
 		String line;
 		while (scanner.hasNextLine()) {
@@ -174,6 +184,8 @@ public class FileHandler {
 			
 			//finds item then sets new price
 			if (temp[0].equals(itemName) && temp[1].equals(seller)) { 
+				oldBidder = temp[2];
+				oldBid = Float.parseFloat(temp[4]);
 				item = (itemName + " " + seller + " " + currentUser + " " + amount + "\n").getBytes();		
 			} else { //copy if item isnt one requested
 				item = (line + "\n").getBytes();		
@@ -182,12 +194,14 @@ public class FileHandler {
 		}
 		scanner.close();
 		outFile.close();
-		
-		//Subtracts user credit
+
+
 		FileOutputStream userFile = new FileOutputStream("tempusers.txt"); //writes a temp file if a new user data exists
 		//replaces old new items file with the temp
 		new File(this.newAvailableItems).delete();
 		new File("tempItems.txt").renameTo(new File(this.newAvailableItems));
+
+	
 		
 		//Checks is newuser file exists to determine which file to read
 		if (new File(this.newUserData).exists()) {
@@ -195,7 +209,7 @@ public class FileHandler {
 		} else {
 			file = new File(this.userData);
 		}
-
+			
 		byte[] oldUsers;
 		//Updates the credit of the old user
 		Scanner userScanner = new Scanner(file);
@@ -206,6 +220,9 @@ public class FileHandler {
 			//Copies all users to temp file except the one to delete
 			if (!temp[0].equals(currentUser)) {
 				oldUsers = (line + "\n").getBytes();
+			} else if (temp[0].equals(oldBidder) && !seller.equals(oldBidder)){
+					oldBid += Float.parseFloat(temp[2]);
+					oldUsers = (temp[0] + " " + temp[1] + " " + oldBid +"\n").getBytes();
 			} else {
 				float newCredit = Float.parseFloat(temp[2])-amount;
 				oldUsers = (temp[0] + " " + temp[1] + " " + newCredit +"\n").getBytes();
