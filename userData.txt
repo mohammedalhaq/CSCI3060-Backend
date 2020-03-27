@@ -1,5 +1,5 @@
 admin AA 100
-userFS FS 0
+userFS FS 35
 userBS BS 0
-user01 FS 100
+user01 FS 120
 userSS SS 0

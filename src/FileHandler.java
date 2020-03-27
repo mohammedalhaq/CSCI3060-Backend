@@ -152,15 +152,7 @@ public class FileHandler {
 		} else if (itemName.length() > 25){
 			this.errors += "ERROR: Max length for the item name is 25 characters\n";
 		} else {		
-			FileOutputStream outFile = new FileOutputStream(this.newAvailableItems);
-			File file = new File(this.availableItems);
-			Scanner scanner = new Scanner(file);
-			while (scanner.hasNextLine()) {
-				byte[] oldItems = (scanner.nextLine() + "\n").getBytes();	
-				outFile.write(oldItems);
-			}
-			scanner.close();
-	
+			FileOutputStream outFile = new FileOutputStream(this.newAvailableItems, true);
 			byte[] newItem = (itemName + " " + username + " " +  username + " " + duration + " " + minBid + "\n").getBytes();
 			outFile.write(newItem);
 			outFile.close();
@@ -168,6 +160,12 @@ public class FileHandler {
 	}
 	
 	void bid(String itemName, String seller, String currentUser, float amount) throws IOException {
+		User user = getUser(currentUser);
+		float newCredit = user.getCredit()-amount;
+		if (newCredit < 0) {
+			this.errors += "ERROR: User does not have sufficient credit\n";
+		} else {
+			
 		FileOutputStream outFile = new FileOutputStream("tempItems.txt");
 		File file = new File(this.newAvailableItems);
 
@@ -196,13 +194,13 @@ public class FileHandler {
 		outFile.close();
 
 
-		FileOutputStream userFile = new FileOutputStream("tempusers.txt"); //writes a temp file if a new user data exists
 		//replaces old new items file with the temp
 		new File(this.newAvailableItems).delete();
 		new File("tempItems.txt").renameTo(new File(this.newAvailableItems));
 
 	
 		
+		FileOutputStream userFile = new FileOutputStream("tempusers.txt"); //writes a temp file if a new user data exists
 		//Checks is newuser file exists to determine which file to read
 		if (new File(this.newUserData).exists()) {
 			file = new File(this.newUserData);
@@ -221,12 +219,12 @@ public class FileHandler {
 			if (!temp[0].equals(currentUser)) {
 				oldUsers = (line + "\n").getBytes();
 			} else if (temp[0].equals(oldBidder) && !seller.equals(oldBidder)){
-					oldBid += Float.parseFloat(temp[2]);
-					oldUsers = (temp[0] + " " + temp[1] + " " + oldBid +"\n").getBytes();
+				oldBid += Float.parseFloat(temp[2]);
+				oldUsers = (temp[0] + " " + temp[1] + " " + oldBid +"\n").getBytes();
 			} else {
-				float newCredit = Float.parseFloat(temp[2])-amount;
 				oldUsers = (temp[0] + " " + temp[1] + " " + newCredit +"\n").getBytes();
 			}
+			
 			userFile.write(oldUsers);
 		}
 		userFile.close();
@@ -236,47 +234,53 @@ public class FileHandler {
 		new File(this.newUserData).delete();
 		new File("tempusers.txt").renameTo(new File(this.newUserData));
 	}
+	}
 	
 	
 	//Function to handle return transactions
 	void refund(String buyername, String sellername, float credit) throws IOException {
-		FileOutputStream userFile = new FileOutputStream("tempusers.txt"); //writes a temp file if a new user data exists
-		File file;
-		
-		//Checks is newuser file exists to determine which file to read
-		if (new File(this.newUserData).exists()) {
-			file = new File(this.newUserData);
-		} else {
-			file = new File(this.userData);
-		}
-
-		Scanner userScanner = new Scanner(file);
-		String line;
-		
 		User buyer = getUser(buyername);
 		User seller = getUser(sellername);
 		float buyerCredit = buyer.getCredit()+credit;
 		float sellerCredit = seller.getCredit()-credit;
-		while (userScanner.hasNextLine()) {
-			line = userScanner.nextLine();
-			String[] temp = line.split("\\s+");
-			
-			byte[] user;
-			if (temp[0].equals(buyername)){
-				user = (buyername + " " + buyer.getType() + " " + buyerCredit +"\n").getBytes();
-			} else if (temp[0].equals(sellername)) {
-				user = (sellername + " " + seller.getType() + " " + sellerCredit +"\n").getBytes();
-			} else {
-				user = (line + "\n").getBytes();
-			}
-			userFile.write(user);
-		}
-		userFile.close();
-		userScanner.close();
 		
-		//deletes old newUserData file and renames temp file to newUserData
-		new File(this.newUserData).delete();
-		new File("tempusers.txt").renameTo(new File(this.newUserData));
+		if (sellerCredit < 0) {
+			this.errors += "ERROR: Seller does not have enough to credit refund\n";
+		} else {
+			FileOutputStream userFile = new FileOutputStream("tempusers.txt"); //writes a temp file if a new user data exists
+			File file;
+		
+			//Checks is newuser file exists to determine which file to read
+			if (new File(this.newUserData).exists()) {
+				file = new File(this.newUserData);
+			} else {
+				file = new File(this.userData);
+			}
+
+			Scanner userScanner = new Scanner(file);
+			String line;
+		
+			while (userScanner.hasNextLine()) {
+				line = userScanner.nextLine();
+				String[] temp = line.split("\\s+");
+			
+				byte[] user;
+				if (temp[0].equals(buyername)){
+					user = (buyername + " " + buyer.getType() + " " + buyerCredit +"\n").getBytes();
+				} else if (temp[0].equals(sellername)) {
+					user = (sellername + " " + seller.getType() + " " + sellerCredit +"\n").getBytes();
+				} else {
+					user = (line + "\n").getBytes();
+				}
+				userFile.write(user);
+			}
+			userFile.close();
+			userScanner.close();
+		
+			//deletes old newUserData file and renames temp file to newUserData
+			new File(this.newUserData).delete();
+			new File("tempusers.txt").renameTo(new File(this.newUserData));
+		}
 	}
 	
 	
