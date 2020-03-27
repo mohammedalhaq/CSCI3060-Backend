@@ -13,7 +13,7 @@ public class FileHandlerTest {
 	public void createTest1() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.create("admin", "AA");
-		assertEquals("ERROR: Username admin already in use.\n", fh.getErrors());
+		assertEquals("ERROR: Username admin already in use.\n", fh.getErrors()); //checks if error messages matches
 	}
 	
 	//Test username length
@@ -29,7 +29,7 @@ public class FileHandlerTest {
 	public void createTest3() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.create("newUser", "FS");
-		assertTrue(fh.getErrors().isEmpty());
+		assertTrue(fh.getErrors().isEmpty()); //Checks if there are no errors
 	}
 
 	//Test successful delete
@@ -91,7 +91,7 @@ public class FileHandlerTest {
 	public void bidTest1() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
-		fh.bid("Shoe", "userSS", "user01", 98.00f);
+		fh.bid("Shoe", "userSS", "admin", 98.00f);
 		assertTrue(fh.getErrors().isEmpty());
 	}
 	
@@ -134,6 +134,33 @@ public class FileHandlerTest {
 		assertTrue(fh.getErrors().isEmpty());
 	}
 		
+	//Loop coverage last iteration	
+	@Test
+	public void bidTest6() throws IOException {
+		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
+		fh.endDay();
+		fh.bid("Shoe", "user01", "admin", 110.00f);
+		assertTrue(fh.getErrors().isEmpty());
+	}
+	
+	//Loop coverage last iteration	
+	@Test
+	public void bidTest7() throws IOException {
+		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
+		fh.endDay();
+		fh.bid("FakeItem", "user01", "admin", 110.00f);
+		assertEquals("ERROR: Item does not exist\n", fh.getErrors());
+	}
+	
+	//Test non existent user
+	@Test
+	public void bidTest8() throws IOException {
+		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
+		fh.endDay();
+		fh.bid("Shoe", "user01", "ffakeuser", 110.00f);
+		assertEquals("User ffakeuser does not exist\n", fh.getErrors());
+	}
+	
 	//Test successful refund
 	@Test
 	public void refundTest1() throws IOException {
@@ -150,6 +177,14 @@ public class FileHandlerTest {
 		fh.endDay();
 		fh.refund("admin", "userSS", 31.00f);
 		assertEquals("ERROR: Seller does not have enough to credit refund\n", fh.getErrors());
+	}
+	
+	@Test
+	public void refundTest3() throws IOException {
+		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
+		fh.endDay();
+		fh.refund("admin", "ffakeuser", 31.00f);
+		assertEquals("ERROR: One or both of the users do not exist\n", fh.getErrors());
 	}
 	
 	//Testing successful addcredit

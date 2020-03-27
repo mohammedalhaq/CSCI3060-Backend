@@ -10,6 +10,7 @@ public class LogWriter {
 		this.errorFile = filename;
 	}
 	
+	//Writes the errors to the file provided
 	void write(String error) throws IOException {
 		FileOutputStream outFile = new FileOutputStream(this.errorFile);
 		byte[] oldUsers = (error).getBytes();
