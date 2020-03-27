@@ -8,14 +8,15 @@ import org.junit.Test;
 
 public class FileHandlerTest {
 	
+	//Test username in use
 	@Test
 	public void createTest1() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.create("admin", "AA");
 		assertEquals("ERROR: Username admin already in use.\n", fh.getErrors());
-		new File("newUserData.txt").delete();
 	}
 	
+	//Test username length
 	@Test
 	public void createTest2() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
@@ -23,6 +24,7 @@ public class FileHandlerTest {
 		assertEquals("ERROR: Username length must be 15 characters or less\n", fh.getErrors());
 	}
 	
+	//Test successful add
 	@Test
 	public void createTest3() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
@@ -30,122 +32,143 @@ public class FileHandlerTest {
 		assertTrue(fh.getErrors().isEmpty());
 	}
 
+	//Test successful delete
 	@Test
 	public void deleteTest1() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		fh.delete("user01");
 		assertTrue(fh.getErrors().isEmpty());
-		new File("newUserData.txt").delete();
-		new File("newAvailableItems.txt").delete();
 	}
 	
+	//Test non existent user
 	@Test
 	public void deleteTest2() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		fh.delete("newUser");
 		assertEquals("ERROR: User does not exist\n", fh.getErrors());
-		new File("newUserData.txt").delete();
-		new File("newAvailableItems.txt").delete();
 	}
 	
+	//Test successful advertisement
 	@Test
 	public void advertiseTest1() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		fh.advertise("Beans", "userSS", 45, 25.00f);
 		assertTrue(fh.getErrors().isEmpty());
-		new File("newUserData.txt").delete();
-		new File("newAvailableItems.txt").delete();
 	}
 	
+	//Test max price error
 	@Test
 	public void advertiseTest2() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		fh.advertise("Beans", "userSS", 45, 1000.00f);
 		assertEquals("ERROR: Max price for an item is $999.99\n", fh.getErrors());
-		new File("newUserData.txt").delete();
-		new File("newAvailableItems.txt").delete();
 	}
 	
+	//Test max duration error
 	@Test
 	public void advertiseTest3() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		fh.advertise("Beans", "userSS", 405, 25.00f);
 		assertEquals( "ERROR: Max duration for an item is 100 days\n", fh.getErrors());
-		new File("newUserData.txt").delete();
-		new File("newAvailableItems.txt").delete();
 	}
 	
+	//Test max item name error
 	@Test
 	public void advertiseTest4() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		fh.advertise("theitemnameisabove25characterssoitwillnotbeaddedtotheitemsfile", "userSS", 45, 25.00f);
 		assertEquals("ERROR: Max length for the item name is 25 characters\n", fh.getErrors());
-		new File("newUserData.txt").delete();
-		new File("newAvailableItems.txt").delete();
 	}
 	
+	//Test successful bid
 	@Test
 	public void bidTest1() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
-		fh.bid("Shoe", "user01", "admin", 98.00f);
+		fh.bid("Shoe", "userSS", "user01", 98.00f);
 		assertTrue(fh.getErrors().isEmpty());
-		new File("newUserData.txt").delete();
-		new File("newAvailableItems.txt").delete();
 	}
 	
+	//Test bidding over user credit
 	@Test
 	public void bidTest2() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		fh.bid("Shoe", "userSS", "userFS", 110.00f);
 		assertEquals("ERROR: User does not have sufficient credit\n", fh.getErrors());
-		new File("newUserData.txt").delete();
 	}
 	
+	//Test bidding on own item
+	@Test
+	public void bidTest3() throws IOException {
+		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
+		fh.endDay();
+		fh.bid("Shoe", "user01", "user01", 110.00f);
+		assertEquals("ERROR: Cannot bid on your own item\n", fh.getErrors());
+	}
+	
+	//Decision coverage of the the condition 	
+	//if (temp[0].equals(itemName) && temp[1].equals(seller)) { 
+	@Test
+	public void bidTest4() throws IOException {
+		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
+		fh.endDay();
+		fh.bid("Shoe", "userSS", "user01", 110.00f);
+		assertTrue(fh.getErrors().isEmpty());
+	}
+		
+	
+	//Decision coverage of the the condition 	
+	//if (temp[0].equals(oldBidder) && !seller.equals(oldBidder)){
+	@Test
+	public void bidTest5() throws IOException {
+		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
+		fh.endDay();
+		fh.bid("Shoe", "user01", "admin", 110.00f);
+		assertTrue(fh.getErrors().isEmpty());
+	}
+		
+	//Test successful refund
 	@Test
 	public void refundTest1() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		fh.refund("admin", "userFS", 31.00f);
 		assertTrue(fh.getErrors().isEmpty());
-		new File("newUserData.txt").delete();
-		new File("newAvailableItems.txt").delete();
 	}
 	
+	//Test refunding more that credit
 	@Test
 	public void refundTest2() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		fh.refund("admin", "userSS", 31.00f);
 		assertEquals("ERROR: Seller does not have enough to credit refund\n", fh.getErrors());
-		new File("newUserData.txt").delete();
-		new File("newAvailableItems.txt").delete();
 	}
 	
-	
+	//Testing successful addcredit
 	@Test
 	public void addTest1() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.addcredit("userBS", 31.00f);
 		assertTrue(fh.getErrors().isEmpty());
-		new File("newUserData.txt").delete();
 	}
 	
+	//Testing adding more than 1k
 	@Test
 	public void addTest2() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.addcredit("userBS", 3100.00f);
 		assertEquals("ERROR: Cannot add more than 1000 credit in one session\n", fh.getErrors());
-		new File("newUserData.txt").delete();
 	}
 	
+	//Testing adding upto max credit
 	@Test
 	public void addTest3() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
@@ -154,19 +177,21 @@ public class FileHandlerTest {
 		for(int i = 0; i<=1001; i++) fh.addcredit("MaxCredit", 999);
 		
 		assertEquals("ERROR: Maximum credit has been reached\n", fh.getErrors());
-		new File("newUserData.txt").delete();
 	}
 	
+	//Test whether the day decrements and newUserData file exists
 	@Test
 	public void endDayTest() throws IOException {
 		FileHandler fh = new FileHandler("userData.txt", "availableItems.txt");
 		fh.endDay();
 		
 		Scanner actual = new Scanner(new File("newAvailableItems.txt"));
-		Scanner expected = new Scanner(new File("newItemsTest.txt"));
+		Scanner expected = new Scanner(new File("expectedAvailableItems.txt"));
 		while (actual.hasNextLine()) {
 			assertEquals(actual.nextLine(), expected.nextLine());
 		}
+		
+		assertTrue(new File("newUserData.txt").exists());
 		
 		actual.close();
 		expected.close();

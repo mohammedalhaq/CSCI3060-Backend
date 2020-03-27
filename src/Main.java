@@ -12,18 +12,15 @@ public class Main {
 		
 		FileHandler fileHandler = new FileHandler(userData, availableItems);
 		LogWriter logWriter = new LogWriter("ErrorLog.txt");
-		try {
-			fileHandler.endDay();
-			File file = new File("dailyTransactions.txt");
-			Scanner scanner = new Scanner(file);
-			String[] line;
-			while (scanner.hasNextLine()) {
-				line = scanner.nextLine().split("\\s+");
-				//System.out.println(line[0] + line[1]);
+		fileHandler.endDay();
+		File file = new File("dailyTransactions.txt");
+		Scanner scanner = new Scanner(file);
+		String[] line;
+		while (scanner.hasNextLine()) {
+			line = scanner.nextLine().split("\\s+");
+			temp = Integer.parseInt(line[0]);
 				
-				temp = Integer.parseInt(line[0]);
-				
-				switch(temp) {
+			switch(temp) {
 				case 1:
 					fileHandler.create(line[1], line[2]);
 					break;
@@ -42,22 +39,12 @@ public class Main {
 				case 6:
 					fileHandler.addcredit(line[1], Float.parseFloat(line[3]));
 					break;
-				}
-
-				
-			}
-			
-			
-			scanner.close();
-			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			}				
 		}
+		scanner.close();
 		
 		//Log all errors when daily file done being read
 		logWriter.write(fileHandler.getErrors());
-
 	}
 
 }

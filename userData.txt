@@ -1,4 +1,4 @@
-admin AA 100
+admin AA 120
 userFS FS 35
 userBS BS 0
 user01 FS 120
