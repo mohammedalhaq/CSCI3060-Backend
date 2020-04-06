@@ -1,4 +1,0 @@
-ERROR: Cannot add more than 1000 credit in one session
-ERROR: Seller does not have enough to credit refund
-ERROR: User does not exist
-ERROR: Username length must be 15 characters or less

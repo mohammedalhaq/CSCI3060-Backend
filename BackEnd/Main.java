@@ -6,14 +6,14 @@ import java.util.Scanner;
 public class Main {
 
 	public static void main(String[] args) throws IOException{	
-		String userData = "userData.txt";
-		String availableItems = "availableItems.txt";
+		String userData = "../userData.txt";
+		String availableItems = "../availableItems.txt";
 		int temp;		//Holds the transaction (01-06)
 		
 		FileHandler fileHandler = new FileHandler(userData, availableItems);
-		LogWriter logWriter = new LogWriter("ErrorLog.txt");
+		LogWriter logWriter = new LogWriter("../ErrorLog.txt");
 		fileHandler.endDay();
-		File file = new File("dailyTransactions.txt");
+		File file = new File("../DailyTransactions/dailyTransactions.txt");
 		Scanner scanner = new Scanner(file);
 		String[] line;
 		while (scanner.hasNextLine()) {
