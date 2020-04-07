@@ -15,11 +15,13 @@ int main(int argc, char** argv) {
 	Transactions transaction;
 	std::string command;
 	transaction.setIteration(argv[1]);
-
+	
+	/* For testing different userdata and items files:
 	if (argc > 1) {
 		transaction.setUserData(argv[2]);
  		transaction.setAvailableItems(argv[3]);
 	}
+	*/
 
 	std::cout << "Welcome to eAuction!\n";
 

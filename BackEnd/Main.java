@@ -13,7 +13,7 @@ public class Main {
 		FileHandler fileHandler = new FileHandler(userData, availableItems);
 		LogWriter logWriter = new LogWriter("../ErrorLog.txt");
 		fileHandler.endDay();
-		File file = new File("../DailyTransactions/dailyTransactions.txt");
+		File file = new File("../DailyTransactions/MergedDailyTransactions.txt");
 		Scanner scanner = new Scanner(file);
 		String[] line;
 		while (scanner.hasNextLine()) {

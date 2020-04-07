@@ -62,8 +62,7 @@ public:
 
 	//User requests the logout transaction. This function is complete
 	void logout() {
-
-		std::cout << user.getUsername() << " logged out\n";
+		std::cout << user.getUsername() << " logged out\n\n";
 
 		//Appends to transaction to the log 
 		log += "00 " + user.getUsername() + " " + user.getType() + " " + std::to_string(user.getCredit()) + "\n";
@@ -94,7 +93,6 @@ public:
 				std::cout << "Create Error: Username exceeds 15 character limit.\n";
 			}
 
-			bool flag = file.createNewUser(username, accountType);
 			std::cout << accountType << " account " << username << " created\n";
 
 			//Appends the transaction to the log

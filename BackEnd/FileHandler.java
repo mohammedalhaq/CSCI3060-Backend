@@ -17,8 +17,8 @@ public class FileHandler {
 	FileHandler(String userData, String availableItems) {
 		this.userData = userData;
 		this.availableItems = availableItems;
-		this.newUserData = "newUserData.txt";
-		this.newAvailableItems = "newAvailableItems.txt";
+		this.newUserData = "../newUserData.txt";
+		this.newAvailableItems = "../newAvailableItems.txt";
 		this.errors = "";
 	}
 
